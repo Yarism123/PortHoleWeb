@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>실시간 좌표 표시</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script th:src="@{https://maps.googleapis.com/maps/api/js?key={apiKey}(apiKey=${@environment.getProperty('google.maps.api-key')})}"></script>
+    <script th:inline="javascript">
+        var map, stompClient;
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 18,
+                // 첫 번째 mapPos 값으로 중심 좌표 설정
+                center: { lat: [[${mapPos[0].latitude}]], lng: [[${mapPos[0].longitude}]] }
+            });
+
+            /*[# th:each="pos : ${mapPos}"]*/
+            var marker = new google.maps.Marker({
+                position: { lat: [[${pos.latitude}]], lng: [[${pos.longitude}]] },
+                map: map,
+                label: {
+                    text: "포트홀",
+                    fontSize: "12px",
+                    fontWeight: "bold"
+                }
+            });
+            /*[/]*/
+
+            connectWebSocket();
+        }
+
+        function connectWebSocket() {
+            let socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                stompClient.subscribe('/topic/markers', function (marker) {
+                    addMarkerToMap(JSON.parse(marker.body));
+                });
+            });
+        }
+
+        function addMarkerToMap(markerInfo) {
+            new google.maps.Marker({
+                position: { lat: markerInfo.latitude, lng: markerInfo.longitude },
+                map: map,
+                label: {
+                    text: "포트홀",
+                    fontSize: "12px",
+                    fontWeight: "bold"
+                }
+            });
+        }
+    </script>
+</head>
+<body onload="initMap()">
+<h2 style="text-align: center">포트홀 위치</h2>
+<div id="map" style="height: 800px;"></div>
+</body>
+</html>
