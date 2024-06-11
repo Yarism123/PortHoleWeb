@@ -1,0 +1,37 @@
+spring:
+
+  profiles:
+    active: initPos
+
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/porthole
+    username: sa
+    password: 1234
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    #테이블 자동생성
+
+    properties:
+      hibernate:
+        # show_sql: true
+        format_sql: true
+        #QueryDsl -> JPQL로 변환된문 보는법
+        use_sql_comments: true
+#logging.level:
+  #org.hibernate.SQL: debug
+  application:
+    name: porthole
+# org.hibernate.type: trace
+
+google:
+  maps:
+    api-key: AIzaSyDhuA5h9F1a3SypBLrC6WboTFBojE250l0
+
+
+#라즈베리파이 ip입력
+raspi:
+  url:
+    video: 172.30.1.49
